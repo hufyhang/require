@@ -1,7 +1,7 @@
 /*
 * A Super Tiny Require API for Browsers
 *
-* Usage: 
+* Usage:
 *
 * define('square', function (exports) {
 *   var square = function (n) {
@@ -15,6 +15,7 @@
 *
 */
 (function (root) {
+  'use strict';
   var modules = {};
   function require(module) {
     if (typeof module !== 'string') {
@@ -25,25 +26,26 @@
     if (module in modules === false) {
       throw new Error(module + ' has yet to be defined.');
     }
-    
+
     var callback = modules[module];
     var exports = {};
     callback(exports);
 
     return exports;
   }
-  
+
   function define (name, callback) {
     if (name in modules) {
       throw new Error('Redeclaration of ' + name);
     }
-    
+
     if (typeof callback !== 'function') {
-      throw new Error('Expect a function for require.add. instead of ' + 
+      throw new Error('Expect a function for require.add. instead of ' +
                      typeof callback + '.');
     }
     modules[name] = callback;
-  };
+  }
+
   root.require = require;
   root.define = define;
 })(window);
