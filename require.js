@@ -35,18 +35,28 @@
     var mod = modules[module];
     var exports = {};
     // Each module only needs to be instantiated once.
-    if (mod.hasBeenCalled === false) {
-      var callback = mod.val;
-      // Get all deps first.
-      var deps = [];
-      mod.deps.forEach(function (dep) {
-        deps.push(require(dep));
-      });
-      // Push `exports` to the front of `deps`.
-      deps.unshift(exports);
-      callback.apply(window, deps);
-      mod.val = exports;
-      mod.hasBeenCalled = true;
+    if (mod.loaded === false) {
+      try {
+        var callback = mod.val;
+        // Get all deps first.
+        var deps = [];
+        mod.deps.forEach(function (dep) {
+          deps.push(require(dep));
+        });
+        // Push `exports` to the front of `deps`.
+        deps.unshift(exports);
+        callback.apply(window, deps);
+      }
+      catch (error) { // Catch all thrown errors.
+        console.error(error.message);
+        // If error, set `exports` to `null`.
+        exports = null;
+      }
+      finally {
+        // Finally, assign `exports` to module, and sets `loaded` to true.
+        mod.val = exports;
+        mod.loaded = true;
+      }
     }
     else {
       exports = mod.val;
@@ -71,7 +81,7 @@
 
     modules[name] = {
       val: callback,
-      hasBeenCalled: false,
+      loaded: false,
       deps: deps
     };
   }
