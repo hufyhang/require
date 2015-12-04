@@ -22,6 +22,12 @@
 */
 (function (root) {
   'use strict';
+  // backward compatibility check.
+  if (typeof root.define !== 'undefined' ||
+      typeof root.require !== 'undefined') {
+    return false;
+  }
+
   var modules = {};
   function require(module) {
     if (typeof module !== 'string') {
@@ -72,7 +78,8 @@
       throw new Error('Expect an array or a function. Found ' + typeof deps + '.');
     }
     if (name in modules) {
-      throw new Error('Redeclaration of ' + name);
+      console.warn('Redeclaration of ' + name);
+      return;
     }
     if (typeof deps === 'function') {
       callback = deps;
